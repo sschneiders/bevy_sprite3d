@@ -215,6 +215,8 @@ pub struct Sprite3d {
     /// An emissive colour, if the sprite should emit light.
     /// `LinearRgba::Black` (default) does nothing.
     pub emissive: LinearRgba,
+    
+    pub mesh_key_group: u32,
 }
 
 impl Default for Sprite3d {
@@ -228,6 +230,7 @@ impl Default for Sprite3d {
             unlit: false,
             double_sided: true,
             emissive: LinearRgba::BLACK,
+            mesh_key_group: 0,
         }
     }
 }
@@ -277,7 +280,7 @@ impl Sprite3d {
                                     (pivot.x * MESH_CACHE_GRANULARITY) as u32,
                                     (pivot.y * MESH_CACHE_GRANULARITY) as u32,
                                     self.double_sided as u32,
-                                    0, 0, 0, 0
+                                    self.mesh_key_group, 0, 0, 0
                                     ];
 
                     // if we have a mesh in the cache, use it.
