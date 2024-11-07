@@ -122,13 +122,13 @@ fn quad(w: f32, h: f32, pivot: Option<Vec2>, double_sided: bool, half_depth: f32
     let vertices = match pivot {
         None => {
             vec![[-w2, -h2, half_depth], [w2, -h2, half_depth], [-w2, h2, half_depth], [w2, h2, half_depth],
-                 [-w2, -h2, -half_depth], [w2, -h2, -half_depth], [-w2, h2, -half_depth], [w2, h2, -half_depth]]
+                 [-w2, -h2, half_depth], [w2, -h2, half_depth], [-w2, h2, half_depth], [w2, h2, half_depth]]
         }
         Some(pivot) => {
             let px = pivot.x * w;
             let py = pivot.y * h;
             vec![[-px, -py, half_depth], [w - px, -py, half_depth], [-px, h - py, half_depth], [w - px, h - py, half_depth],
-                 [-px, -py, -half_depth], [w - px, -py, -half_depth], [-px, h - py, -half_depth], [w - px, h - py, -half_depth]]
+                 [-px, -py, half_depth], [w - px, -py, half_depth], [-px, h - py, half_depth], [w - px, h - py, half_depth]]
         }
     };
 
