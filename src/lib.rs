@@ -75,7 +75,7 @@ fn reduce_colour(c: LinearRgba) -> [u8; 4] {
 
 #[derive(Resource)]
 pub struct Sprite3dRes {
-    pub mesh_cache: HashMap<[u32; 10], Handle<Mesh>>,
+    pub mesh_cache: HashMap<[u32; 11], Handle<Mesh>>,
     pub material_cache: HashMap<MatKey, Handle<StandardMaterial>>,
 }
 
@@ -241,7 +241,7 @@ pub struct Sprite3dComponent {}
 // Stores mesh keys since the previous AtlasSprite3dComponent was removed.
 #[derive(Component)]
 pub struct TextureAtlas3dData {
-    pub keys: Vec<[u32; 10]>,
+    pub keys: Vec<[u32; 11]>,
 }
 
 #[derive(Bundle)]
@@ -279,7 +279,8 @@ impl Sprite3d {
                         (pivot.y * MESH_CACHE_GRANULARITY) as u32,
                         self.double_sided as u32,
                         0, 0, 0, 0,
-                        self.reuse_key_group
+                        self.reuse_key_group,
+                        self.half_depth.to_bits()
                     ];
 
                     // if we have a mesh in the cache, use it.
@@ -365,7 +366,8 @@ impl Sprite3d {
                 (frac_rect.min.y * MESH_CACHE_GRANULARITY) as u32,
                 (frac_rect.max.x * MESH_CACHE_GRANULARITY) as u32,
                 (frac_rect.max.y * MESH_CACHE_GRANULARITY) as u32,
-                self.reuse_key_group
+                self.reuse_key_group,
+                self.half_depth.to_bits(),
             ];
 
             mesh_keys.push(mesh_key);
