@@ -142,21 +142,22 @@ fn quad(w: f32, h: f32, pivot: Option<Vec2>, double_sided: bool, half_depth: f32
 
     mesh.insert_indices(Indices::U32(
         if double_sided { vec![0, 1, 2, 1, 3, 2, 6, 7, 5, 6, 5, 4] } else { vec![0, 1, 2, 1, 3, 2] }
-    ));                                          
-                                                  
+    ));
+
     mesh
 }
 
 
 // generate a StandardMaterial useful for rendering a sprite
-fn material(image: Handle<Image>, alpha_mode: AlphaMode, unlit: bool, emissive: LinearRgba) -> StandardMaterial {
+fn material(image: Handle<Image>, alpha_mode: AlphaMode, unlit: bool, emissive: LinearRgba,
+            perceptual_roughness: f32, reflectance: f32) -> StandardMaterial {
     StandardMaterial {
         base_color_texture: Some(image),
         cull_mode: Some(Face::Back),
         alpha_mode,
         unlit,
-        perceptual_roughness: 0.5,
-        reflectance: 0.15,
+        perceptual_roughness: perceptual_roughness,
+        reflectance: reflectance,
         emissive,
 
         ..Default::default()
@@ -214,6 +215,10 @@ pub struct Sprite3d {
     /// Offset Sprite front face by this value.
     /// If `double_sided` is true the back face is also offset by `-half_depth`
     pub half_depth: f32,
+
+    pub perceptual_roughness: f32,
+
+    pub reflectance: f32,
 }
 
 impl Default for Sprite3d {
@@ -229,6 +234,8 @@ impl Default for Sprite3d {
             emissive: LinearRgba::BLACK,
             reuse_key_group: 0,
             half_depth: 0.0,
+            perceptual_roughness: 0.5,
+            reflectance: 0.15,
         }
     }
 }
@@ -304,7 +311,9 @@ impl Sprite3d {
                     };
 
                     if let Some(material) = params.sr.material_cache.get(&mat_key) { material.clone() } else {
-                        let material = params.materials.add(material(self.image.clone(), self.alpha_mode, self.unlit, self.emissive));
+                        let material = params.materials.add(
+                            material(self.image.clone(), self.alpha_mode, self.unlit,
+                                     self.emissive, self.perceptual_roughness, self.reflectance));
                         params.sr.material_cache.insert(mat_key, material.clone());
                         material
                     }
@@ -401,7 +410,7 @@ impl Sprite3d {
                         emissive: reduce_colour(self.emissive),
                     };
                     if let Some(material) = params.sr.material_cache.get(&mat_key) { material.clone() } else {
-                        let material = params.materials.add(material(self.image.clone(), self.alpha_mode, self.unlit, self.emissive));
+                        let material = params.materials.add(material(self.image.clone(), self.alpha_mode, self.unlit, self.emissive, 0.5, 0.15));
                         params.sr.material_cache.insert(mat_key, material.clone());
                         material
                     }
