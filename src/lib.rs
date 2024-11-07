@@ -141,9 +141,9 @@ fn quad(w: f32, h: f32, pivot: Option<Vec2>, double_sided: bool, half_depth: f32
                                                      [0.0, 1.0], [1.0, 1.0], [0.0, 0.0], [1.0, 0.0]]);
 
     mesh.insert_indices(Indices::U32(
-        if double_sided { vec![0, 1, 2, 1, 3, 2, 4, 5, 6, 5, 7, 6] } else { vec![0, 1, 2, 1, 3, 2] }
+        if double_sided { vec![0, 1, 2, 1, 3, 2, 6, 7, 5, 6, 5, 4] } else { vec![0, 1, 2, 1, 3, 2] }
     ));                                          
-                                                 
+                                                  
     mesh
 }
 
