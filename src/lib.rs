@@ -108,7 +108,7 @@ fn sprite3d_system(
 // pivot = None will have a center pivot
 // pivot = Some(p) will have an expected range of p \in (0,0) to (1,1)
 // (though you can go out of bounds without issue)
-fn quad(w: f32, h: f32, pivot: Option<Vec2>, double_sided: bool) -> Mesh {
+fn quad(w: f32, h: f32, pivot: Option<Vec2>, double_sided: bool, half_depth: f32) -> Mesh {
     let w2 = w / 2.0;
     let h2 = h / 2.0;
 
@@ -121,14 +121,14 @@ fn quad(w: f32, h: f32, pivot: Option<Vec2>, double_sided: bool) -> Mesh {
 
     let vertices = match pivot {
         None => {
-            vec![[-w2, -h2, 0.0], [w2, -h2, 0.0], [-w2, h2, 0.0], [w2, h2, 0.0],
-                 [-w2, -h2, 0.0], [w2, -h2, 0.0], [-w2, h2, 0.0], [w2, h2, 0.0]]
+            vec![[-w2, -h2, half_depth], [w2, -h2, half_depth], [-w2, h2, half_depth], [w2, h2, half_depth],
+                 [-w2, -h2, -half_depth], [w2, -h2, -half_depth], [-w2, h2, -half_depth], [w2, h2, -half_depth]]
         }
         Some(pivot) => {
             let px = pivot.x * w;
             let py = pivot.y * h;
-            vec![[-px, -py, 0.0], [w - px, -py, 0.0], [-px, h - py, 0.0], [w - px, h - py, 0.0],
-                 [-px, -py, 0.0], [w - px, -py, 0.0], [-px, h - py, 0.0], [w - px, h - py, 0.0]]
+            vec![[-px, -py, half_depth], [w - px, -py, half_depth], [-px, h - py, half_depth], [w - px, h - py, half_depth],
+                 [-px, -py, -half_depth], [w - px, -py, -half_depth], [-px, h - py, -half_depth], [w - px, h - py, -half_depth]]
         }
     };
 
@@ -208,7 +208,12 @@ pub struct Sprite3d {
     /// `LinearRgba::Black` (default) does nothing.
     pub emissive: LinearRgba,
 
+    /// Same reuse_key_group is required for reusing mesh from mesh cache
     pub reuse_key_group: u32,
+
+    /// Offset Sprite front face by this value. 
+    /// If `double_sided` is true the back face is also offset by `-half_depth`
+    pub half_depth: f32,
 }
 
 impl Default for Sprite3d {
@@ -223,6 +228,7 @@ impl Default for Sprite3d {
             double_sided: true,
             emissive: LinearRgba::BLACK,
             reuse_key_group: 0,
+            half_depth: 0.0,
         }
     }
 }
@@ -279,7 +285,7 @@ impl Sprite3d {
                     // if we have a mesh in the cache, use it.
                     // (greatly reduces number of unique meshes for tilemaps, etc.)
                     if let Some(mesh) = params.sr.mesh_cache.get(&mesh_key) { mesh.clone() } else { // otherwise, create a new mesh and cache it.
-                        let mesh = params.meshes.add(quad(w, h, self.pivot, self.double_sided));
+                        let mesh = params.meshes.add(quad(w, h, self.pivot, self.double_sided, self.half_depth));
                         params.sr.mesh_cache.insert(mesh_key, mesh.clone());
                         mesh
                     }
@@ -366,7 +372,7 @@ impl Sprite3d {
 
             // if we don't have a mesh in the cache, create it.
             if !params.sr.mesh_cache.contains_key(&mesh_key) {
-                let mut mesh = quad(w, h, Some(pivot), self.double_sided);
+                let mut mesh = quad(w, h, Some(pivot), self.double_sided, self.half_depth);
                 mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, vec![
                     [frac_rect.min.x, frac_rect.max.y],
                     [frac_rect.max.x, frac_rect.max.y],
