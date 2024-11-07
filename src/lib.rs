@@ -34,7 +34,6 @@ pub struct Sprite3dParams<'w, 's> {
 
 #[derive(Eq, Hash, PartialEq)]
 pub struct MatKey {
-    key_group: u32,
     image: Handle<Image>,
     alpha_mode: HashableAlphaMode,
     unlit: bool,
@@ -76,7 +75,7 @@ fn reduce_colour(c: LinearRgba) -> [u8; 4] {
 
 #[derive(Resource)]
 pub struct Sprite3dRes {
-    pub mesh_cache: HashMap<[u32; 9], Handle<Mesh>>,
+    pub mesh_cache: HashMap<[u32; 10], Handle<Mesh>>,
     pub material_cache: HashMap<MatKey, Handle<StandardMaterial>>,
 }
 
@@ -236,7 +235,7 @@ pub struct Sprite3dComponent {}
 // Stores mesh keys since the previous AtlasSprite3dComponent was removed.
 #[derive(Component)]
 pub struct TextureAtlas3dData {
-    pub keys: Vec<[u32; 9]>,
+    pub keys: Vec<[u32; 10]>,
 }
 
 #[derive(Bundle)]
@@ -273,7 +272,8 @@ impl Sprite3d {
                         (pivot.x * MESH_CACHE_GRANULARITY) as u32,
                         (pivot.y * MESH_CACHE_GRANULARITY) as u32,
                         self.double_sided as u32,
-                        self.reuse_key_group, 0, 0, 0
+                        0, 0, 0, 0,
+                        self.reuse_key_group
                     ];
 
                     // if we have a mesh in the cache, use it.
@@ -290,7 +290,6 @@ impl Sprite3d {
                 // (possibly look into a bool in Sprite3d to manually disable caching for an individual sprite?)
                 material: {
                     let mat_key = MatKey {
-                        key_group: self.reuse_key_group,
                         image: self.image.clone(),
                         alpha_mode: HashableAlphaMode(self.alpha_mode),
                         unlit: self.unlit,
@@ -359,7 +358,9 @@ impl Sprite3d {
                 (frac_rect.min.x * MESH_CACHE_GRANULARITY) as u32,
                 (frac_rect.min.y * MESH_CACHE_GRANULARITY) as u32,
                 (frac_rect.max.x * MESH_CACHE_GRANULARITY) as u32,
-                (frac_rect.max.y * MESH_CACHE_GRANULARITY) as u32];
+                (frac_rect.max.y * MESH_CACHE_GRANULARITY) as u32,
+                self.reuse_key_group
+            ];
 
             mesh_keys.push(mesh_key);
 
@@ -386,7 +387,6 @@ impl Sprite3d {
                 mesh: params.sr.mesh_cache.get(&mesh_keys[atlas.index]).unwrap().clone(),
                 material: {
                     let mat_key = MatKey {
-                        key_group: self.reuse_key_group,
                         image: self.image.clone(),
                         alpha_mode: HashableAlphaMode(self.alpha_mode),
                         unlit: self.unlit,
