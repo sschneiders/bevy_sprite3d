@@ -137,8 +137,8 @@ fn quad(w: f32, h: f32, pivot: Option<Vec2>, double_sided: bool, half_depth: f32
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, vec![[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0],
                                                        [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0]]);
 
-    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, vec![[0.0, 1.0], [1.0, 1.0], [0.0, 0.0], [1.0, 0.0],
-                                                     [0.0, 1.0], [1.0, 1.0], [0.0, 0.0], [1.0, 0.0]]);
+    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, vec![[0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0],
+                                                     [0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 1.0]]);
 
     mesh.insert_indices(Indices::U32(
         if double_sided { vec![0, 1, 2, 1, 3, 2, 6, 7, 5, 6, 5, 4] } else { vec![0, 1, 2, 1, 3, 2] }
